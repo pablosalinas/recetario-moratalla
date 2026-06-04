@@ -1,0 +1,44 @@
+[
+    {
+        "id": "mojos-y-entrantes",
+        "nombre": "Mojos y Entrantes",
+        "visible": true,
+        "imagen": "cat-entradas.png"
+    },
+    {
+        "id": "sopas-y-caldos",
+        "nombre": "Sopas y Caldos",
+        "visible": true,
+        "imagen": "cat-sopas.png"
+    },
+    {
+        "id": "arroces-y-harinas",
+        "nombre": "Arroces y Harinas",
+        "visible": true,
+        "imagen": "cat-arroces.png"
+    },
+    {
+        "id": "potajes-y-guisos",
+        "nombre": "Potajes y Guisos",
+        "visible": true,
+        "imagen": "cat-potajes.png"
+    },
+    {
+        "id": "carnes",
+        "nombre": "Carnes",
+        "visible": true,
+        "imagen": "cat-carnes.png"
+    },
+    {
+        "id": "fritos-y-pescados",
+        "nombre": "Fritos y Pescados",
+        "visible": true,
+        "imagen": "cat-pescados.png"
+    },
+    {
+        "id": "reposteria",
+        "nombre": "Repostería",
+        "visible": true,
+        "imagen": "cat-reposteria.png"
+    }
+]

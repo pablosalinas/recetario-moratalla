@@ -29,6 +29,7 @@ $user = getCurrentUser();
         </div>
         <nav class="sidebar-nav">
             <a href="index.php" class="nav-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+            <a href="categorias.php" class="nav-item"><i class="fa-solid fa-layer-group"></i> Categorías</a>
             <a href="recetas.php" class="nav-item active"><i class="fa-solid fa-utensils"></i> Recetas</a>
             <a href="usuarios.php" class="nav-item"><i class="fa-solid fa-users"></i> Usuarios</a>
         </nav>
@@ -65,13 +66,6 @@ $user = getCurrentUser();
             </div>
             <select id="filterCategoria" class="select-filter">
                 <option value="">Todas las categorías</option>
-                <option>Mojos y Entrantes</option>
-                <option>Sopas y Caldos</option>
-                <option>Arroces y Harinas</option>
-                <option>Potajes y Guisos</option>
-                <option>Carnes</option>
-                <option>Fritos y Pescados</option>
-                <option>Repostería</option>
             </select>
         </div>
 
@@ -120,13 +114,6 @@ $user = getCurrentUser();
                         <label class="form-label">Categoría <span class="req">*</span></label>
                         <select id="rCategoria" class="form-control" required>
                             <option value="">— Seleccionar —</option>
-                            <option>Mojos y Entrantes</option>
-                            <option>Sopas y Caldos</option>
-                            <option>Arroces y Harinas</option>
-                            <option>Potajes y Guisos</option>
-                            <option>Carnes</option>
-                            <option>Fritos y Pescados</option>
-                            <option>Repostería</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -147,6 +134,20 @@ $user = getCurrentUser();
                     <div class="form-group">
                         <label class="form-label">Imagen Origen (nombre archivo)</label>
                         <input type="text" id="rImagenOrigen" class="form-control" placeholder="IMG_20250122_152636.jpg">
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Imágenes Adicionales (separadas por coma)</label>
+                        <input type="text" id="rImagenes" class="form-control" placeholder="img1.jpg, img2.png">
+                    </div>
+                    <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 0.5rem;">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="rVisible" checked>
+                            <span class="toggle-slider"></span>
+                            <span>Receta Visible al público</span>
+                        </label>
                     </div>
                 </div>
 
@@ -231,7 +232,10 @@ function renderTable(recetas) {
 
     tbody.innerHTML = recetas.map(r => `
         <tr data-id="${r.id}">
-            <td class="td-name">${escHtml(r.nombre)}</td>
+            <td class="td-name">
+                ${escHtml(r.nombre)}
+                ${r.visible === false ? '<span class="badge badge-gray" style="margin-left: 5px;">Oculta</span>' : ''}
+            </td>
             <td><span class="badge ${CATEGORIAS[r.categoria] || 'badge-gray'}">${escHtml(r.categoria)}</span></td>
             <td>${escHtml(r.facilitador || '—')}</td>
             <td class="td-libro">${escHtml((r.libro || '').replace(' de Moratalla',''))}</td>
@@ -282,6 +286,8 @@ function openModal(receta = null) {
         document.getElementById('rLibro').value           = receta.libro || 'Cocina Tradicional de Moratalla (1992)';
         document.getElementById('rPagina').value          = receta.pagina || '';
         document.getElementById('rImagenOrigen').value    = receta.imagen_origen || '';
+        document.getElementById('rImagenes').value        = (receta.imagenes || []).join(', ');
+        document.getElementById('rVisible').checked       = receta.visible !== false;
         document.getElementById('rInstrucciones').value   = receta.instrucciones || '';
         document.getElementById('rNotaHistorica').value   = receta.nota_historica || '';
         renderIngredientes(receta.ingredientes || []);
@@ -289,6 +295,7 @@ function openModal(receta = null) {
         document.getElementById('modalTitle').textContent = 'Nueva Receta';
         document.getElementById('formReceta').reset();
         document.getElementById('rId').value = '';
+        document.getElementById('rVisible').checked = true;
         renderIngredientes(['']);
     }
 
@@ -369,6 +376,8 @@ document.getElementById('formReceta').addEventListener('submit', async (e) => {
         libro:          document.getElementById('rLibro').value,
         pagina:         parseInt(document.getElementById('rPagina').value) || 0,
         imagen_origen:  document.getElementById('rImagenOrigen').value.trim(),
+        imagenes:       document.getElementById('rImagenes').value.split(',').map(s => s.trim()).filter(Boolean),
+        visible:        document.getElementById('rVisible').checked,
         ingredientes:   ings,
         instrucciones:  document.getElementById('rInstrucciones').value.trim(),
         nota_historica: document.getElementById('rNotaHistorica').value.trim(),
@@ -475,8 +484,33 @@ if (new URLSearchParams(location.search).get('action') === 'new') {
     openModal(null);
 }
 
+// Cargar categorías y luego recetas
+async function init() {
+    try {
+        const catRes = await fetch('../api/categorias.php');
+        const categorias = await catRes.json();
+        
+        const filterSelect = document.getElementById('filterCategoria');
+        const formSelect = document.getElementById('rCategoria');
+        
+        categorias.forEach(c => {
+            const opt1 = document.createElement('option');
+            opt1.value = c.nombre; opt1.textContent = c.nombre;
+            filterSelect.appendChild(opt1);
+            
+            const opt2 = document.createElement('option');
+            opt2.value = c.nombre; opt2.textContent = c.nombre;
+            formSelect.appendChild(opt2);
+        });
+    } catch (e) {
+        console.error("Error cargando categorías", e);
+    }
+    
+    await loadRecetas();
+}
+
 // Inicializar
-loadRecetas();
+init();
 </script>
 </body>
 </html>

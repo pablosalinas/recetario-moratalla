@@ -32,6 +32,9 @@ $user = getCurrentUser();
             <a href="index.php" class="nav-item active">
                 <i class="fa-solid fa-gauge"></i> Dashboard
             </a>
+            <a href="categorias.php" class="nav-item">
+                <i class="fa-solid fa-layer-group"></i> Categorías
+            </a>
             <a href="recetas.php" class="nav-item">
                 <i class="fa-solid fa-utensils"></i> Recetas
             </a>

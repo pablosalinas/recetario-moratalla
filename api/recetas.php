@@ -58,6 +58,8 @@ if ($method === 'POST') {
         'instrucciones'  => trim($body['instrucciones'] ?? ''),
         'nota_historica' => trim($body['nota_historica'] ?? ''),
         'libro'          => $body['libro'] ?? 'Cocina Tradicional de Moratalla (1992)',
+        'visible'        => isset($body['visible']) ? (bool)$body['visible'] : true,
+        'imagenes'       => is_array($body['imagenes'] ?? null) ? $body['imagenes'] : [],
     ];
 
     $recetas[] = $nueva;
@@ -86,6 +88,8 @@ if ($method === 'PUT') {
             $r['instrucciones']  = trim($body['instrucciones'] ?? $r['instrucciones']);
             $r['nota_historica'] = trim($body['nota_historica'] ?? $r['nota_historica']);
             $r['libro']          = $body['libro'] ?? $r['libro'];
+            if (isset($body['visible'])) $r['visible'] = (bool)$body['visible'];
+            if (isset($body['imagenes']) && is_array($body['imagenes'])) $r['imagenes'] = $body['imagenes'];
             $found = true;
             $updated = $r;
             break;

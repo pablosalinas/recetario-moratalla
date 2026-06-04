@@ -23,14 +23,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeDrawerBtn = document.getElementById("close-drawer-btn");
     const drawerInnerContent = document.getElementById("drawer-inner-content");
 
-    // 1. Cargar datos del JSON
+    let categories = [];
+
+    // 1. Cargar datos del JSON/API
     async function loadRecipes() {
         try {
-            const response = await fetch("data/recetas.json");
-            if (!response.ok) {
-                throw new Error("No se pudo cargar la base de datos de recetas");
+            const [resCat, resRec] = await Promise.all([
+                fetch("api/categorias.php"),
+                fetch("api/recetas.php")
+            ]);
+            if (!resRec.ok || !resCat.ok) {
+                throw new Error("No se pudo cargar la base de datos");
             }
-            recipes = await response.json();
+            const allCats = await resCat.json();
+            const allRecs = await resRec.json();
+            
+            // Filtrar solo los visibles
+            categories = allCats.filter(c => c.visible !== false);
+            recipes = allRecs.filter(r => r.visible !== false);
+            
+            renderCategories();
             renderRecipes();
         } catch (error) {
             console.error("Error al inicializar el recetario:", error);
@@ -44,6 +56,44 @@ document.addEventListener("DOMContentLoaded", () => {
             .toLowerCase()
             .normalize("NFD")
             .replace(/[\u0300-\u036f]/g, "");
+    }
+    
+    function renderCategories() {
+        const slider = document.getElementById("categories-tabs");
+        let html = `
+            <button class="category-card active" data-category="all" role="tab" aria-selected="true">
+                <div class="category-icon-wrapper"><i class="fa-solid fa-bowl-food"></i></div>
+                <span class="category-name">Todas las Recetas</span>
+            </button>
+        `;
+        categories.forEach(c => {
+            html += `
+                <button class="category-card" data-category="${c.nombre}" role="tab" aria-selected="false">
+                    <div class="category-image" style="background-image: url('img/${c.imagen || 'cat-entradas.png'}');"></div>
+                    <span class="category-name">${c.nombre}</span>
+                </button>
+            `;
+        });
+        slider.innerHTML = html;
+        
+        // Asignar eventos de click a las nuevas tarjetas
+        const newCards = document.querySelectorAll(".category-card");
+        newCards.forEach(card => {
+            card.addEventListener("click", () => {
+                newCards.forEach(c => {
+                    c.classList.remove("active");
+                    c.setAttribute("aria-selected", "false");
+                });
+                card.classList.add("active");
+                card.setAttribute("aria-selected", "true");
+                activeCategory = card.dataset.category;
+                renderRecipes();
+                const rect = recipesGrid.getBoundingClientRect();
+                if (rect.top < 0) {
+                    document.getElementById("recetario-section").scrollIntoView({ behavior: "smooth" });
+                }
+            });
+        });
     }
 
     // 2. Filtrar recetas según categoría y búsqueda
@@ -96,8 +146,14 @@ document.addEventListener("DOMContentLoaded", () => {
             card.setAttribute("tabindex", "0");
             card.dataset.id = recipe.id;
 
-            // Heurística de imagen: Si es Mojos, poner Mojos, etc.
-            const headerImage = getCategoryImage(recipe.categoria);
+            // Heurística de imagen: Si tiene imagen subida o de categoría
+            let headerImage = "img/hero-bg.png";
+            if (recipe.imagenes && recipe.imagenes.length > 0) {
+                headerImage = recipe.imagenes[0];
+            } else {
+                const cat = categories.find(c => c.nombre === recipe.categoria);
+                if (cat && cat.imagen) headerImage = 'img/' + cat.imagen;
+            }
 
             card.innerHTML = `
                 <div class="recipe-card-header" style="background-image: url('${headerImage}');">
@@ -137,20 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             recipesGrid.appendChild(card);
         });
-    }
-
-    // Retorna la imagen adecuada para la tarjeta según la categoría
-    function getCategoryImage(categoria) {
-        switch (categoria) {
-            case "Mojos y Entrantes": return "img/cat-entradas.png";
-            case "Sopas y Caldos": return "img/cat-sopas.png";
-            case "Arroces y Harinas": return "img/cat-arroces.png";
-            case "Potajes y Guisos": return "img/cat-potajes.png";
-            case "Carnes": return "img/cat-carnes.png";
-            case "Fritos y Pescados": return "img/cat-pescados.png";
-            case "Repostería": return "img/cat-reposteria.png";
-            default: return "img/hero-bg.png";
-        }
     }
 
     // 4. Detalle y panel lateral (Drawer)
@@ -320,30 +362,6 @@ document.addEventListener("DOMContentLoaded", () => {
         clearSearchBtn.style.display = "none";
         renderRecipes();
         searchInput.focus();
-    });
-
-    // 6. Manejo de las Pestañas de Categoría
-    categoryCards.forEach(card => {
-        card.addEventListener("click", () => {
-            // Remover clase activa de anteriores
-            categoryCards.forEach(c => {
-                c.classList.remove("active");
-                c.setAttribute("aria-selected", "false");
-            });
-
-            // Establecer activa la actual
-            card.classList.add("active");
-            card.setAttribute("aria-selected", "true");
-            activeCategory = card.dataset.category;
-
-            renderRecipes();
-            
-            // Hacer scroll suave al inicio de las recetas si estamos abajo
-            const rect = recipesGrid.getBoundingClientRect();
-            if (rect.top < 0) {
-                document.getElementById("recetario-section").scrollIntoView({ behavior: "smooth" });
-            }
-        });
     });
 
     // Cargar recetario al iniciar
