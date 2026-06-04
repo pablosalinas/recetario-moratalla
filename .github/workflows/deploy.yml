@@ -1,0 +1,29 @@
+name: Deploy to Production via FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to FTP Server
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/test_*.php
+            **/cookie*.txt
+            COCINA TRADICIONAL DE MORATALLA/**
+            GASTRONOMIA DE MORATALLA/**
+            README.md
