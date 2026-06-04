@@ -1,0 +1,11 @@
+# Bloquear acceso directo a archivos de datos sensibles
+<Files "users.json">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+# Redirigir index.html a index.php si existe
+DirectoryIndex index.php index.html
+
+# Evitar listado de directorios
+Options -Indexes
