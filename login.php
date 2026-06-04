@@ -84,15 +84,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .login-emblem {
-            width: 72px; height: 72px;
-            background: linear-gradient(135deg, var(--terracotta), var(--wheat));
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
+            width: 110px; height: 110px;
+            border-radius: 12px;
+            overflow: hidden;
             margin: 0 auto 1.25rem;
-            box-shadow: 0 0 40px rgba(200, 113, 74, 0.3);
+            box-shadow: 0 0 40px rgba(212, 169, 106, 0.25), 0 4px 20px rgba(0,0,0,0.5);
+            border: 1px solid rgba(212, 169, 106, 0.2);
+            background: #fff;
         }
 
-        .login-emblem i { font-size: 2rem; color: #fff; }
+        .login-emblem img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center top;
+            display: block;
+        }
 
         .login-title {
             font-family: 'Playfair Display', serif;
@@ -281,7 +287,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <header class="login-header">
             <div class="login-emblem">
-                <i class="fa-solid fa-mortar-pestle"></i>
+                <img src="img/logo2.jpg" alt="Ilustración de Moratalla">
             </div>
             <h1 class="login-title">Recetario<br>de Moratalla</h1>
             <p class="login-subtitle">Patrimonio Gastronómico del Noroeste Murciano</p>

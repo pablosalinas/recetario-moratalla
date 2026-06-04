@@ -79,6 +79,23 @@ $isAdmin = isAdmin();
         /* Empujar el header original hacia abajo por la user-bar */
         body { padding-top: 40px; }
         .main-header { top: 40px !important; }
+
+        /* Logo imagen en el header */
+        .logo-img {
+            height: 32px;
+            width: auto;
+            border-radius: 4px;
+            object-fit: cover;
+            object-position: center top;
+            opacity: 0.92;
+            transition: opacity 0.2s;
+        }
+        .logo-area:hover .logo-img { opacity: 1; }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
     </style>
 </head>
 <body class="rustic-dark-theme">
@@ -109,6 +126,7 @@ $isAdmin = isAdmin();
     <header class="main-header" id="main-header">
         <div class="header-container">
             <a href="#" class="logo-area">
+                <img src="img/logo2.jpg" alt="Logo Moratalla" class="logo-img">
                 <span class="logo-accent">Moratalla</span>
                 <span class="logo-text">Sabores de Antaño</span>
             </a>
