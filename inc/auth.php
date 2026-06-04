@@ -70,8 +70,9 @@ function saveUsers(array $users): bool {
 }
 
 function findUserByUsername(string $username): ?array {
+    $usernameLower = mb_strtolower($username, 'UTF-8');
     foreach (loadUsers() as $user) {
-        if ($user['username'] === $username && ($user['activo'] ?? true)) {
+        if (mb_strtolower($user['username'], 'UTF-8') === $usernameLower && ($user['activo'] ?? true)) {
             return $user;
         }
     }

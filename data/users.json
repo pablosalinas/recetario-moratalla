@@ -43,5 +43,23 @@
         "rol": "admin",
         "activo": true,
         "created_at": "2026-06-04"
+    },
+    {
+        "id": 999,
+        "username": "testuser",
+        "password_hash": "$2y$12$XFbak3wA17QLXdGmp1OkUucAoouGIN\/qNbChf08vWPJj09zcsugzO",
+        "nombre": "Test User",
+        "rol": "consulta",
+        "activo": true,
+        "created_at": "2026-06-04"
+    },
+    {
+        "id": 1000,
+        "username": "test_web",
+        "password_hash": "$2y$12$KEbtnZyqcY9MZcnK2G9vuuhOBFm4cb0T\/PpDXTKTNx3FJ6vr615QW",
+        "nombre": "Test Web",
+        "rol": "consulta",
+        "activo": true,
+        "created_at": "2026-06-04"
     }
 ]
