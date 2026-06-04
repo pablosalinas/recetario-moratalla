@@ -139,8 +139,15 @@ $user = getCurrentUser();
 
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label class="form-label">Imágenes Adicionales (separadas por coma)</label>
-                        <input type="text" id="rImagenes" class="form-control" placeholder="img1.jpg, img2.png">
+                        <label class="form-label">Imágenes (nombres de archivo o rutas)</label>
+                        <div style="display: flex; gap: 0.5rem; align-items: stretch;">
+                            <input type="text" id="rImagenes" class="form-control" placeholder="img/recetas/receta_123.jpg">
+                            <input type="file" id="rImageUpload" accept="image/jpeg, image/png, image/webp" style="display: none;">
+                            <button type="button" class="btn-secondary" id="btnUploadImage" style="white-space: nowrap;">
+                                <i class="fa-solid fa-upload"></i> Subir
+                            </button>
+                        </div>
+                        <span class="form-hint">Subir imagen optimizada con marca de agua (www.moratalla-murcia.com)</span>
                     </div>
                     <div class="form-group" style="display: flex; align-items: flex-end; padding-bottom: 0.5rem;">
                         <label class="toggle-label">
@@ -483,6 +490,48 @@ document.addEventListener('keydown', (e) => {
 if (new URLSearchParams(location.search).get('action') === 'new') {
     openModal(null);
 }
+
+// ── Subida de Imágenes ─────────────────────────────────────────────────────
+document.getElementById('btnUploadImage').addEventListener('click', () => {
+    document.getElementById('rImageUpload').click();
+});
+
+document.getElementById('rImageUpload').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const btn = document.getElementById('btnUploadImage');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo...';
+
+    const formData = new FormData();
+    formData.append('imagen', file);
+
+    try {
+        const res = await fetch('../api/upload.php', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error || 'Error al subir la imagen');
+        
+        // Añadir al campo de texto
+        const input = document.getElementById('rImagenes');
+        const currentVals = input.value.split(',').map(s => s.trim()).filter(Boolean);
+        currentVals.push(data.filename);
+        input.value = currentVals.join(', ');
+        
+        showToast('Imagen optimizada y subida correctamente ✓');
+    } catch (err) {
+        alert(err.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        e.target.value = ''; // Reset
+    }
+});
 
 // Cargar categorías y luego recetas
 async function init() {
