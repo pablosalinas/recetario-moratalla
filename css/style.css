@@ -12,10 +12,10 @@
     --color-border: #3b2c26;        /* Óxido de cobre / Adobe */
     --color-border-hover: #5a453d;  
     
-    --color-accent-terracota: #8B0000; /* Rojo Moratalla */
-    --color-accent-terracota-rgb: 139, 0, 0;
-    --color-accent-gold: #B22222;      /* FireBrick */
-    --color-accent-gold-rgb: 178, 34, 34;
+    --color-accent-terracota: #4a7c59; /* Verde Moratalla */
+    --color-accent-terracota-rgb: 74, 124, 89;
+    --color-accent-gold: #d89f4b;      /* Trigo / Miel de la sierra */
+    --color-accent-gold-rgb: 216, 159, 75;
     --color-success: #5f7a4b;          /* Verde oliva */
     
     --color-text-primary: #f5f1ed;     /* Harina / Cal */
