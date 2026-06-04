@@ -11,6 +11,7 @@ $isAdmin = isAdmin();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recetario Tradicional Moratallero - Patrimonio Gastronómico</title>
     <meta name="description" content="Explora y preserva las 155 recetas tradicionales de Moratalla a partir de los libros históricos de 1992 y 2001. Sabores de la huerta, la sierra y la tradición del Noroeste murciano.">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -96,6 +97,9 @@ $isAdmin = isAdmin();
             <i class="fa-solid fa-screwdriver-wrench"></i> Panel Admin
         </a>
         <?php endif; ?>
+        <a href="https://www.moratalla-murcia.com" target="_blank" rel="noopener" title="Web principal de Moratalla">
+            <i class="fa-solid fa-globe"></i> moratalla-murcia.com
+        </a>
         <a href="logout.php">
             <i class="fa-solid fa-right-from-bracket"></i> Salir
         </a>
@@ -249,6 +253,7 @@ $isAdmin = isAdmin();
             <div class="footer-links">
                 <a href="#main-header">Inicio</a>
                 <a href="#recetario-section">Recetas</a>
+                <a href="https://www.moratalla-murcia.com" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i> moratalla-murcia.com</a>
                 <?php if ($isAdmin): ?>
                 <a href="admin/index.php"><i class="fa-solid fa-screwdriver-wrench"></i> Admin</a>
                 <?php endif; ?>

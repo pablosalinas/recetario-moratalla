@@ -31,6 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso — Recetario Tradicional Moratallero</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -251,6 +252,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-top: 1px solid var(--border);
             margin: 1.5rem 0;
         }
+
+        /* Enlace web principal */
+        .main-site-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 1.25rem;
+            padding: 0.55rem 1.1rem;
+            border: 1px solid rgba(210, 150, 80, 0.3);
+            border-radius: 30px;
+            color: var(--wheat) !important;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-decoration: none !important;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+            letter-spacing: 0.03em;
+        }
+        .main-site-link:hover {
+            background: rgba(212, 169, 106, 0.1);
+            border-color: rgba(212, 169, 106, 0.55);
+            color: #f0e6d3 !important;
+        }
     </style>
 </head>
 <body>
@@ -324,6 +347,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Acceso restringido al personal autorizado.<br>
                 <a href="mailto:moratalla@example.com">¿Problemas para acceder?</a>
             </p>
+
+            <div style="text-align:center; margin-top: 0.5rem;">
+                <a href="https://www.moratalla-murcia.com" target="_blank" rel="noopener" class="main-site-link">
+                    <i class="fa-solid fa-globe"></i>
+                    www.moratalla-murcia.com
+                </a>
+            </div>
         </div>
 
     </div>
