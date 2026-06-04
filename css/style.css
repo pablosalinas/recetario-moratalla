@@ -1073,3 +1073,14 @@ a:hover {
         gap: 2rem;
     }
 }
+
+@media (max-width: 600px) {
+    .user-bar-name, .user-bar-role {
+        display: none !important;
+    }
+    .user-bar {
+        justify-content: flex-end;
+        padding: 0 1rem;
+        gap: 1.5rem;
+    }
+}
