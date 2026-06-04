@@ -1,0 +1,16 @@
+# Imágenes fuente escaneadas (volumen excesivo)
+COCINA TRADICIONAL DE MORATALLA/
+GASTRONOMIA DE MORATALLA/
+
+# Archivos de Office
+*.docx
+*.xlsx
+
+# Archivos del sistema
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Archivos temporales
+*.tmp
+*.log

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recetario Tradicional Moratallero - Patrimonio Gastronómico</title>
+    <meta name="description" content="Explora y preserva las 155 recetas tradicionales de Moratalla a partir de los libros históricos de 1992 y 2001. Sabores de la huerta, la sierra y la tradición del Noroeste murciano.">
+    
+    <!-- Google Fonts: Playfair Display (Rustic/Elegant headings) and Plus Jakarta Sans (Clean/Modern body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Vanilla CSS Custom Style Sheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="rustic-dark-theme">
+    
+    <!-- Dynamic Header & Navigation -->
+    <header class="main-header" id="main-header">
+        <div class="header-container">
+            <a href="#" class="logo-area">
+                <span class="logo-accent">Moratalla</span>
+                <span class="logo-text">Sabores de Antaño</span>
+            </a>
+            
+            <nav class="nav-links" id="main-nav">
+                <a href="#recetario-section" class="active-link"><i class="fa-solid fa-utensils"></i> Recetas</a>
+                <a href="#acerca-section"><i class="fa-solid fa-book-open"></i> El Libro</a>
+                <a href="#comunidad-section"><i class="fa-solid fa-seedling"></i> Tradición</a>
+            </nav>
+            
+            <div class="header-actions">
+                <button class="theme-toggle" id="theme-toggle-btn" aria-label="Cambiar tema">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Showcase Section -->
+    <section class="hero-showcase" id="hero-section" style="background-image: linear-gradient(rgba(18, 18, 18, 0.75), rgba(18, 18, 18, 0.95)), url('img/hero-bg.png');">
+        <div class="hero-content">
+            <span class="hero-tagline"><i class="fa-solid fa-mortar-pestle"></i> Legado Gastronómico</span>
+            <h1 class="hero-title">Recetario Tradicional Moratallero</h1>
+            <p class="hero-description">
+                Un viaje en el tiempo a través de las cocinas, las lumbre y las orzas de Moratalla. Digitalización de las 155 recetas tradicionales originales recolectadas de la sabiduría popular a partir de las publicaciones históricas de 1992 y 2001.
+            </p>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <span class="stat-number">155</span>
+                    <span class="stat-label">Recetas Históricas</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">7</span>
+                    <span class="stat-label">Categorías</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">1992-2001</span>
+                    <span class="stat-label">Años de Recopilación</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scroll-indicator">
+            <span>Explorar Recetario</span>
+            <i class="fa-solid fa-chevron-down animate-bounce"></i>
+        </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="content-wrapper" id="recetario-section">
+        
+        <!-- Interactive Search & Filtering Area -->
+        <section class="control-panel" id="filters-area">
+            <div class="search-bar-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="recipe-search-input" placeholder="Buscar por receta, ingrediente, facilitador..." aria-label="Buscar receta">
+                <button class="clear-search-btn" id="clear-search-btn" aria-label="Limpiar búsqueda">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Categories Slider Grid -->
+            <div class="categories-container-title">
+                <h2>Categorías del Recetario</h2>
+            </div>
+            
+            <div class="categories-slider" id="categories-tabs" role="tablist">
+                <button class="category-card active" data-category="all" role="tab" aria-selected="true">
+                    <div class="category-icon-wrapper">
+                        <i class="fa-solid fa-bowl-food"></i>
+                    </div>
+                    <span class="category-name">Todas las Recetas</span>
+                </button>
+
+                <button class="category-card" data-category="Mojos y Entrantes" role="tab" aria-selected="false">
+                    <div class="category-image" style="background-image: url('img/cat-entradas.png');"></div>
+                    <span class="category-name">Mojos y Entrantes</span>
+                </button>
+
+                <button class="category-card" data-category="Sopas y Caldos" role="tab" aria-selected="false">
+                    <div class="category-image" style="background-image: url('img/cat-sopas.png');"></div>
+                    <span class="category-name">Sopas y Caldos</span>
+                </button>
+
+                <button class="category-card" data-category="Arroces y Harinas" role="tab" aria-selected="false">
+                    <div class="category-image" style="background-image: url('img/cat-arroces.png');"></div>
+                    <span class="category-name">Arroces y Harinas</span>
+                </button>
+
+                <button class="category-card" data-category="Potajes y Guisos" role="tab" aria-selected="false">
+                    <div class="category-image" style="background-image: url('img/cat-potajes.png');"></div>
+                    <span class="category-name">Potajes y Guisos</span>
+                </button>
+
+                <button class="category-card" data-category="Carnes" role="tab" aria-selected="false">
+                    <div class="category-image" style="background-image: url('img/cat-carnes.png');"></div>
+                    <span class="category-name">Carnes</span>
+                </button>
+
+                <button class="category-card" data-category="Fritos y Pescados" role="tab" aria-selected="false">
+                    <div class="category-image" style="background-image: url('img/cat-pescados.png');"></div>
+                    <span class="category-name">Fritos y Pescados</span>
+                </button>
+
+                <button class="category-card" data-category="Repostería" role="tab" aria-selected="false">
+                    <div class="category-image" style="background-image: url('img/cat-reposteria.png');"></div>
+                    <span class="category-name">Repostería</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Recipes Showcase Section -->
+        <section class="recipes-display-wrapper">
+            <div class="recipes-meta-summary">
+                <span class="results-counter" id="recipes-counter-text">Cargando recetario...</span>
+            </div>
+            
+            <div class="recipes-grid" id="recipes-grid-container">
+                <!-- Recipe cards dynamically populated by app.js -->
+            </div>
+            
+            <!-- Empty State -->
+            <div class="no-recipes-found hidden" id="no-recipes-element">
+                <i class="fa-solid fa-mortar-pestle-empty empty-icon"></i>
+                <h3>No hemos encontrado recetas</h3>
+                <p>Prueba con otros términos de búsqueda o cambia la categoría seleccionada.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Side Panel / Details Drawer for selected recipe (Glassmorphism & animations) -->
+    <aside class="recipe-drawer" id="recipe-detail-drawer" aria-hidden="true">
+        <div class="drawer-overlay" id="drawer-close-overlay"></div>
+        <div class="drawer-body">
+            <button class="close-drawer-btn" id="close-drawer-btn" aria-label="Cerrar detalles">
+                <i class="fa-solid fa-arrow-right-long"></i>
+            </button>
+            
+            <div class="drawer-scroll-content" id="drawer-inner-content">
+                <!-- Recipe detailed view dynamically populated -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- Footer of Page -->
+    <footer class="app-footer" id="page-footer">
+        <div class="footer-container">
+            <div class="footer-info">
+                <h3>Patrimonio Inmaterial de Moratalla</h3>
+                <p>Una iniciativa local para la salvaguarda de la gastronomía y saberes rurales tradicionales del Noroeste murciano.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#main-header">Inicio</a>
+                <a href="#recetario-section">Recetas</a>
+                <a href="data/recetas.json" target="_blank">API JSON</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Recetario de Moratalla. Digitalizado con rigor a partir de las obras originales de 1992 y 2001.</p>
+        </div>
+    </footer>
+
+    <!-- App Logic Script -->
+    <script src="js/app_v2.js"></script>
+</body>
+</html>
