@@ -35,7 +35,7 @@ if ($method === 'POST') {
         jsonResponse(['error' => 'Usuario, nombre y contraseña son obligatorios'], 400);
     }
 
-    if (findUserByUsername($username)) {
+    if (findAnyUserByUsername($username)) {
         jsonResponse(['error' => 'El nombre de usuario ya existe'], 409);
     }
 
@@ -85,7 +85,7 @@ if ($method === 'PUT') {
 
             // Cambiar username solo si es nuevo y único
             if (!empty($body['username']) && $body['username'] !== $u['username']) {
-                if (findUserByUsername($body['username'])) {
+                if (findAnyUserByUsername($body['username'])) {
                     jsonResponse(['error' => 'El nombre de usuario ya existe'], 409);
                 }
                 $u['username'] = $body['username'];

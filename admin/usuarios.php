@@ -190,7 +190,7 @@ function renderTable(users) {
             : '<span class="badge badge-blue">Consulta</span>';
         const actBadge = u.activo
             ? '<span class="badge badge-green">Activo</span>'
-            : '<span class="badge badge-gray">Inactivo</span>';
+            : '<span class="badge badge-gray" title="Pendiente de autorización">Inactivo</span>';
         const meTag = isMe ? ' <span class="badge badge-amber" title="Tu cuenta">Tú</span>' : '';
 
         return `
@@ -201,6 +201,10 @@ function renderTable(users) {
                 <td>${actBadge}</td>
                 <td>${u.created_at || '—'}</td>
                 <td class="td-actions">
+                    ${!u.activo ? `
+                    <button class="btn-icon" style="color:#34d399; border-color:rgba(52,211,153,0.35);" onclick="authorizeUser(${u.id})" title="Autorizar y activar usuario">
+                        <i class="fa-solid fa-user-check"></i>
+                    </button>` : ''}
                     <button class="btn-icon btn-edit" onclick="openEditUser(${u.id})" title="Editar">
                         <i class="fa-solid fa-pen"></i>
                     </button>
@@ -212,6 +216,24 @@ function renderTable(users) {
             </tr>
         `;
     }).join('');
+}
+
+async function authorizeUser(id) {
+    const u = allUsers.find(x => x.id === id);
+    if (!u) return;
+    try {
+        const res = await fetch('../api/usuarios.php', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ id: u.id, nombre: u.nombre, rol: u.rol, activo: true }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al autorizar');
+        await loadUsuarios();
+        showToast(`Usuario «${u.username}» autorizado y activado ✓`);
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
 }
 
 function escHtml(s) {

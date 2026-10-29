@@ -7,23 +7,60 @@ if (isLoggedIn()) {
     exit;
 }
 
-$error = '';
+$error   = '';
+$success = '';
+$showAccessBox = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action   = $_POST['action'] ?? 'login';
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    if (empty($username) || empty($password)) {
-        $error = 'Por favor, introduce usuario y contraseña.';
-    } elseif (!attemptLogin($username, $password)) {
-        $error = 'Usuario o contraseña incorrectos.';
-        // Pequeña pausa para dificultar ataques de fuerza bruta
-        sleep(1);
+    if ($action === 'request_access') {
+        $showAccessBox = true;
+        $captcha  = trim($_POST['captcha'] ?? '');
+        $honeypot = trim($_POST['website_hp'] ?? '');
+
+        if (!empty($honeypot)) {
+            $error = 'Solicitud rechazada por el filtro anti-robots.';
+        } elseif (empty($username) || empty($password)) {
+            $error = 'Debes rellenar el Usuario y la Contraseña en el formulario para enviar la solicitud.';
+        } elseif ($captcha === '' || !isset($_SESSION['recetario_captcha_sum']) || (int)$captcha !== (int)$_SESSION['recetario_captcha_sum']) {
+            $error = 'La respuesta del CAPTCHA de seguridad es incorrecta. Por favor, inténtalo de nuevo.';
+        } else {
+            $reqError = null;
+            if (processAccessRequest($username, $password, $reqError)) {
+                $success = "Solicitud enviada a info@moratalla-murcia.com. Tu usuario («{$username}») ha quedado registrado y permanece desactivado hasta que un administrador lo autorice.";
+                $showAccessBox = false;
+                $_POST['username'] = '';
+                $_POST['password'] = '';
+            } else {
+                $error = $reqError ?: 'No se pudo procesar la solicitud de acceso.';
+            }
+        }
     } else {
-        header('Location: index.php');
-        exit;
+        if (empty($username) || empty($password)) {
+            $error = 'Por favor, introduce usuario y contraseña.';
+        } elseif (!attemptLogin($username, $password)) {
+            $anyUser = findAnyUserByUsername($username);
+            if ($anyUser && !($anyUser['activo'] ?? true) && password_verify($password, $anyUser['password_hash'])) {
+                $error = 'Tu cuenta está registrada pero desactivada. Está pendiente de autorización por un administrador.';
+            } else {
+                $error = 'Usuario o contraseña incorrectos.';
+            }
+            // Pequeña pausa para dificultar ataques de fuerza bruta
+            sleep(1);
+        } else {
+            header('Location: index.php');
+            exit;
+        }
     }
 }
+
+// Generar nuevo CAPTCHA anti-robots para la sesión
+$_SESSION['recetario_captcha_n1']  = random_int(2, 12);
+$_SESSION['recetario_captcha_n2']  = random_int(1, 9);
+$_SESSION['recetario_captcha_sum'] = $_SESSION['recetario_captcha_n1'] + $_SESSION['recetario_captcha_n2'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -280,6 +317,121 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-color: rgba(212, 169, 106, 0.55);
             color: #f0e6d3 !important;
         }
+
+        /* Banner Éxito */
+        .success-banner {
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            border-radius: 8px;
+            padding: 0.9rem 1rem;
+            color: #6ee7b7;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.65rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+        .success-banner i {
+            margin-top: 0.2rem;
+            font-size: 1rem;
+        }
+
+        /* Panel ¿Problemas para acceder? + CAPTCHA */
+        .access-request-box {
+            margin-top: 1.25rem;
+            padding: 1.15rem;
+            background: rgba(33, 30, 26, 0.85);
+            border: 1px dashed rgba(212, 169, 106, 0.35);
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .access-request-box.active {
+            display: block;
+        }
+        .access-request-info {
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            line-height: 1.5;
+            margin-bottom: 0.9rem;
+        }
+        .access-request-info strong {
+            color: var(--wheat);
+        }
+        .captcha-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.9rem;
+        }
+        .captcha-badge {
+            background: #141210;
+            border: 1px solid rgba(212, 169, 106, 0.35);
+            border-radius: 8px;
+            padding: 0.6rem 0.9rem;
+            color: var(--wheat);
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+        .captcha-input {
+            flex: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.65rem 0.85rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            text-align: center;
+        }
+        .captcha-input:focus {
+            border-color: var(--terracotta);
+            box-shadow: 0 0 0 3px rgba(200, 113, 74, 0.15);
+        }
+        .btn-request-access {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(212, 169, 106, 0.15);
+            border: 1px solid var(--wheat);
+            border-radius: 8px;
+            color: var(--wheat);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: background 0.2s, color 0.2s, transform 0.1s;
+        }
+        .btn-request-access:hover {
+            background: var(--wheat);
+            color: #141210;
+        }
+        .problem-link-btn {
+            background: none;
+            border: none;
+            color: var(--wheat);
+            font-family: inherit;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            padding: 0.2rem 0;
+            transition: color 0.2s;
+        }
+        .problem-link-btn:hover {
+            color: var(--terracotta-h);
+        }
     </style>
 </head>
 <body>
@@ -296,13 +448,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="login-card">
 
             <?php if ($error): ?>
-            <div class="error-banner" role="alert">
+            <div class="error-banner" id="errorBanner" role="alert">
                 <i class="fa-solid fa-circle-exclamation"></i>
-                <?= htmlspecialchars($error) ?>
+                <span id="errorBannerText"><?= htmlspecialchars($error) ?></span>
+            </div>
+            <?php else: ?>
+            <div class="error-banner" id="errorBanner" role="alert" style="display:none;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="errorBannerText"></span>
+            </div>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+            <div class="success-banner" role="status">
+                <i class="fa-solid fa-circle-check"></i>
+                <span><?= htmlspecialchars($success) ?></span>
             </div>
             <?php endif; ?>
 
             <form method="POST" action="login.php" id="loginForm" novalidate>
+                <input type="hidden" name="action" id="formAction" value="login">
 
                 <div class="form-group">
                     <label class="form-label" for="username">Usuario</label>
@@ -345,13 +510,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <i class="fa-solid fa-right-to-bracket"></i>
                     Acceder al Recetario
                 </button>
+
+                <!-- Bloque de solicitud de acceso / problemas para acceder con CAPTCHA -->
+                <div class="access-request-box <?= $showAccessBox ? 'active' : '' ?>" id="accessRequestBox">
+                    <p class="access-request-info">
+                        <i class="fa-solid fa-envelope-circle-check" style="color:var(--terracotta);"></i>
+                        Rellena arriba tu <strong>Usuario</strong> y <strong>Contraseña</strong>. Se enviará un correo a <strong>info@moratalla-murcia.com</strong> y tu usuario quedará registrado (en estado <strong>desactivado</strong> hasta que un administrador lo autorice).
+                    </p>
+
+                    <!-- Honeypot anti-bots oculto -->
+                    <div style="position:absolute; left:-9999px; opacity:0; pointer-events:none;" aria-hidden="true">
+                        <label for="website_hp">No rellenar</label>
+                        <input type="text" name="website_hp" id="website_hp" tabindex="-1" autocomplete="off">
+                    </div>
+
+                    <label class="form-label" for="captchaInput" style="margin-bottom:0.4rem;">
+                        Verificación anti-robots (CAPTCHA) *
+                    </label>
+                    <div class="captcha-row">
+                        <div class="captcha-badge" title="Resuelve la suma de seguridad">
+                            <i class="fa-solid fa-shield-halved" style="color:var(--terracotta);"></i>
+                            <?= (int)$_SESSION['recetario_captcha_n1'] ?> + <?= (int)$_SESSION['recetario_captcha_n2'] ?> = ?
+                        </div>
+                        <input
+                            type="number"
+                            id="captchaInput"
+                            name="captcha"
+                            class="captcha-input"
+                            placeholder="Resultado"
+                            autocomplete="off"
+                        >
+                    </div>
+
+                    <button type="button" class="btn-request-access" id="btnSendAccessRequest">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        Enviar datos y solicitar autorización
+                    </button>
+                </div>
             </form>
 
             <hr class="divider">
 
             <p class="login-footer">
                 Acceso restringido al personal autorizado.<br>
-                <a href="mailto:moratalla@example.com">¿Problemas para acceder?</a>
+                <button type="button" class="problem-link-btn" id="btnProblemasAcceso">
+                    <i class="fa-solid fa-circle-question"></i> ¿Problemas para acceder?
+                </button>
             </p>
 
             <div style="text-align:center; margin-top: 0.5rem;">
@@ -376,11 +580,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             passIcon.className = isPass ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
         });
 
-        // Loading state al enviar
-        document.getElementById('loginForm').addEventListener('submit', function () {
-            const btn = document.getElementById('submitBtn');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
-            btn.disabled = true;
+        const loginForm        = document.getElementById('loginForm');
+        const formAction       = document.getElementById('formAction');
+        const userInput        = document.getElementById('username');
+        const captchaInput     = document.getElementById('captchaInput');
+        const accessBox        = document.getElementById('accessRequestBox');
+        const btnProblemas     = document.getElementById('btnProblemasAcceso');
+        const btnSendRequest   = document.getElementById('btnSendAccessRequest');
+        const errorBanner      = document.getElementById('errorBanner');
+        const errorBannerText  = document.getElementById('errorBannerText');
+
+        function showClientError(msg) {
+            errorBannerText.textContent = msg;
+            errorBanner.style.display = 'flex';
+            errorBanner.style.animation = 'none';
+            void errorBanner.offsetWidth;
+            errorBanner.style.animation = 'shake 0.4s ease';
+        }
+
+        function triggerAccessRequest() {
+            const uVal = userInput.value.trim();
+            const pVal = passInput.value;
+            const cVal = captchaInput.value.trim();
+
+            if (!uVal || !pVal) {
+                showClientError('Debes rellenar primero los campos de Usuario y Contraseña en el formulario.');
+                if (!uVal) userInput.focus();
+                else passInput.focus();
+                return;
+            }
+
+            if (!cVal) {
+                showClientError('Por favor, resuelve el CAPTCHA de seguridad para evitar registros automáticos.');
+                captchaInput.focus();
+                return;
+            }
+
+            formAction.value = 'request_access';
+            btnSendRequest.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando solicitud...';
+            btnSendRequest.disabled = true;
+            loginForm.submit();
+        }
+
+        // Al pulsar "¿Problemas para acceder?"
+        btnProblemas.addEventListener('click', () => {
+            if (!accessBox.classList.contains('active')) {
+                accessBox.classList.add('active');
+                if (!userInput.value.trim()) {
+                    showClientError('Rellena tu Usuario y Contraseña en el formulario, resuelve el CAPTCHA y envía la solicitud.');
+                    userInput.focus();
+                } else if (!passInput.value) {
+                    showClientError('Rellena la Contraseña en el formulario, resuelve el CAPTCHA y envía la solicitud.');
+                    passInput.focus();
+                } else {
+                    captchaInput.focus();
+                }
+            } else {
+                triggerAccessRequest();
+            }
+        });
+
+        btnSendRequest.addEventListener('click', triggerAccessRequest);
+
+        // Permitir enviar solicitud con Enter dentro del campo CAPTCHA
+        captchaInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                triggerAccessRequest();
+            }
+        });
+
+        // Loading state al enviar login normal
+        loginForm.addEventListener('submit', function () {
+            if (formAction.value === 'login') {
+                const btn = document.getElementById('submitBtn');
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
+                btn.disabled = true;
+            }
         });
     </script>
 </body>
