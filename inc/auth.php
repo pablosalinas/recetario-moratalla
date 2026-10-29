@@ -345,7 +345,7 @@ function slugify(string $text): string {
 function jsonResponse(mixed $data, int $code = 200): void {
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }
 
@@ -353,6 +353,9 @@ function jsonResponse(mixed $data, int $code = 200): void {
 function requireApiLogin(): void {
     if (empty($_SESSION['user_id'])) {
         jsonResponse(['error' => 'No autenticado'], 401);
+    }
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
     }
 }
 

@@ -293,6 +293,6 @@ $isAdmin = isAdmin();
     </script>
 
     <!-- App Logic Script -->
-    <script src="js/app_v2.js"></script>
+    <script src="js/app_v2.js?v=20261029"></script>
 </body>
 </html>

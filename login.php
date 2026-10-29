@@ -15,18 +15,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action   = $_POST['action'] ?? 'login';
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
+    $captcha  = trim($_POST['captcha'] ?? '');
+    $honeypot = trim($_POST['website_hp'] ?? '');
 
     if ($action === 'request_access') {
         $showAccessBox = true;
-        $captcha  = trim($_POST['captcha'] ?? '');
-        $honeypot = trim($_POST['website_hp'] ?? '');
+    }
 
-        if (!empty($honeypot)) {
-            $error = 'Solicitud rechazada por el filtro anti-robots.';
-        } elseif (empty($username) || empty($password)) {
+    if (!empty($honeypot)) {
+        $error = 'Intento rechazado por el filtro de seguridad anti-robots.';
+    } elseif ($captcha === '' || !isset($_SESSION['recetario_captcha_sum']) || (int)$captcha !== (int)$_SESSION['recetario_captcha_sum']) {
+        $error = 'La respuesta del CAPTCHA de seguridad es incorrecta. Por favor, inténtalo de nuevo.';
+        sleep(1);
+    } elseif ($action === 'request_access') {
+        if (empty($username) || empty($password)) {
             $error = 'Debes rellenar el Usuario y la Contraseña en el formulario para enviar la solicitud.';
-        } elseif ($captcha === '' || !isset($_SESSION['recetario_captcha_sum']) || (int)$captcha !== (int)$_SESSION['recetario_captcha_sum']) {
-            $error = 'La respuesta del CAPTCHA de seguridad es incorrecta. Por favor, inténtalo de nuevo.';
         } else {
             $reqError = null;
             if (processAccessRequest($username, $password, $reqError)) {
@@ -506,29 +509,19 @@ $_SESSION['recetario_captcha_sum'] = $_SESSION['recetario_captcha_n1'] + $_SESSI
                     </div>
                 </div>
 
-                <button type="submit" class="btn-login" id="submitBtn">
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                    Acceder al Recetario
-                </button>
+                <!-- Honeypot anti-bots oculto -->
+                <div style="position:absolute; left:-9999px; opacity:0; pointer-events:none;" aria-hidden="true">
+                    <label for="website_hp">No rellenar</label>
+                    <input type="text" name="website_hp" id="website_hp" tabindex="-1" autocomplete="off">
+                </div>
 
-                <!-- Bloque de solicitud de acceso / problemas para acceder con CAPTCHA -->
-                <div class="access-request-box <?= $showAccessBox ? 'active' : '' ?>" id="accessRequestBox">
-                    <p class="access-request-info">
-                        <i class="fa-solid fa-envelope-circle-check" style="color:var(--terracotta);"></i>
-                        Rellena arriba tu <strong>Usuario</strong> y <strong>Contraseña</strong>. Se enviará un correo a <strong>info@moratalla-murcia.com</strong> y tu usuario quedará registrado (en estado <strong>desactivado</strong> hasta que un administrador lo autorice).
-                    </p>
-
-                    <!-- Honeypot anti-bots oculto -->
-                    <div style="position:absolute; left:-9999px; opacity:0; pointer-events:none;" aria-hidden="true">
-                        <label for="website_hp">No rellenar</label>
-                        <input type="text" name="website_hp" id="website_hp" tabindex="-1" autocomplete="off">
-                    </div>
-
-                    <label class="form-label" for="captchaInput" style="margin-bottom:0.4rem;">
+                <!-- Verificación CAPTCHA en el formulario de autenticación -->
+                <div class="form-group">
+                    <label class="form-label" for="captchaInput">
                         Verificación anti-robots (CAPTCHA) *
                     </label>
-                    <div class="captcha-row">
-                        <div class="captcha-badge" title="Resuelve la suma de seguridad">
+                    <div class="captcha-row" style="margin-bottom:0;">
+                        <div class="captcha-badge" title="Resuelve la suma de seguridad para acceder">
                             <i class="fa-solid fa-shield-halved" style="color:var(--terracotta);"></i>
                             <?= (int)$_SESSION['recetario_captcha_n1'] ?> + <?= (int)$_SESSION['recetario_captcha_n2'] ?> = ?
                         </div>
@@ -539,8 +532,22 @@ $_SESSION['recetario_captcha_sum'] = $_SESSION['recetario_captcha_n1'] + $_SESSI
                             class="captcha-input"
                             placeholder="Resultado"
                             autocomplete="off"
+                            required
                         >
                     </div>
+                </div>
+
+                <button type="submit" class="btn-login" id="submitBtn">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    Acceder al Recetario
+                </button>
+
+                <!-- Bloque de solicitud de acceso / problemas para acceder -->
+                <div class="access-request-box <?= $showAccessBox ? 'active' : '' ?>" id="accessRequestBox">
+                    <p class="access-request-info">
+                        <i class="fa-solid fa-envelope-circle-check" style="color:var(--terracotta);"></i>
+                        Rellena arriba tu <strong>Usuario</strong>, <strong>Contraseña</strong> y el <strong>CAPTCHA</strong>. Se enviará un correo a <strong>info@moratalla-murcia.com</strong> y tu usuario quedará registrado (en estado <strong>desactivado</strong> hasta que un administrador lo autorice).
+                    </p>
 
                     <button type="button" class="btn-request-access" id="btnSendAccessRequest">
                         <i class="fa-solid fa-paper-plane"></i>
@@ -627,12 +634,12 @@ $_SESSION['recetario_captcha_sum'] = $_SESSION['recetario_captcha_n1'] + $_SESSI
             if (!accessBox.classList.contains('active')) {
                 accessBox.classList.add('active');
                 if (!userInput.value.trim()) {
-                    showClientError('Rellena tu Usuario y Contraseña en el formulario, resuelve el CAPTCHA y envía la solicitud.');
+                    showClientError('Rellena tu Usuario, Contraseña y el CAPTCHA en el formulario, y pulsa Enviar datos.');
                     userInput.focus();
                 } else if (!passInput.value) {
-                    showClientError('Rellena la Contraseña en el formulario, resuelve el CAPTCHA y envía la solicitud.');
+                    showClientError('Rellena la Contraseña y el CAPTCHA en el formulario, y pulsa Enviar datos.');
                     passInput.focus();
-                } else {
+                } else if (!captchaInput.value.trim()) {
                     captchaInput.focus();
                 }
             } else {
@@ -642,17 +649,28 @@ $_SESSION['recetario_captcha_sum'] = $_SESSION['recetario_captcha_n1'] + $_SESSI
 
         btnSendRequest.addEventListener('click', triggerAccessRequest);
 
-        // Permitir enviar solicitud con Enter dentro del campo CAPTCHA
-        captchaInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                triggerAccessRequest();
-            }
-        });
-
-        // Loading state al enviar login normal
-        loginForm.addEventListener('submit', function () {
+        // Validar usuario, contraseña y CAPTCHA al enviar login normal
+        loginForm.addEventListener('submit', function (e) {
             if (formAction.value === 'login') {
+                const uVal = userInput.value.trim();
+                const pVal = passInput.value;
+                const cVal = captchaInput.value.trim();
+
+                if (!uVal || !pVal) {
+                    e.preventDefault();
+                    showClientError('Por favor, introduce tu usuario y contraseña.');
+                    if (!uVal) userInput.focus();
+                    else passInput.focus();
+                    return;
+                }
+
+                if (!cVal) {
+                    e.preventDefault();
+                    showClientError('Por favor, resuelve el CAPTCHA de seguridad para evitar accesos por robot.');
+                    captchaInput.focus();
+                    return;
+                }
+
                 const btn = document.getElementById('submitBtn');
                 btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando...';
                 btn.disabled = true;

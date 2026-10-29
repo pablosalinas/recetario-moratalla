@@ -29,8 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
     async function loadRecipes() {
         try {
             const [resCat, resRec] = await Promise.all([
-                fetch("api/categorias.php"),
-                fetch("api/recetas.php")
+                fetch("api/categorias.php", { cache: "no-store", credentials: "same-origin" }),
+                fetch("api/recetas.php", { cache: "no-store", credentials: "same-origin" })
             ]);
             if (!resRec.ok || !resCat.ok) {
                 throw new Error("No se pudo cargar la base de datos");
